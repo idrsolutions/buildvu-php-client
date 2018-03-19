@@ -1,0 +1,19 @@
+{
+    "name": "idrsolutions/buildvu-php-client",
+    "description": "BuildVu PHP Client is the PHP API for IDRsolutions' BuildVu Microservice Example",
+    "type": "project",
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "IDRsolutions (https://www.idrsolutions.com)"
+        }
+    ],
+    "require": {
+        "php": ">= 6.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "IDRsolutions\\BuildVuPhpClient\\": "src/"
+        }
+    }
+}
