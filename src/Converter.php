@@ -65,6 +65,10 @@ class Converter {
 
         $header = 'Content-Type: multipart/form-data; boundary='.MULTIPART_BOUNDARY;
         $file  = file_get_contents($opt[self::FILE_PATH]);
+        if (!$file) {
+            exit("File not found");
+        }
+
         $content =
             "--".MULTIPART_BOUNDARY."\r\n".
             "Content-Disposition: form-data; name=\"".FORM_FIELD."\"; filename=\"".basename($opt[self::FILE_PATH])."\"\r\n".
