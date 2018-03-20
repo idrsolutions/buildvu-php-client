@@ -19,7 +19,7 @@ composer require idrsolutions/buildvu-php-client
 ```php
 <?php
 
-require_once __DIR__ . "/../vendor/autoload.php";
+require_once __DIR__ . "/vendor/autoload.php";
 
 use IDRsolutions\BuildVuPhpClient\Converter;
 
