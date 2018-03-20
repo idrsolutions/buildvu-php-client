@@ -1,4 +1,4 @@
-# BuildVu Node.js Client #
+# BuildVu PHP Client #
 
 BuildVu PHP Client is the PHP API for IDRSolutions' [BuildVu Microservice Example](https://github.com/idrsolutions/buildvu-microservice-example).
 
