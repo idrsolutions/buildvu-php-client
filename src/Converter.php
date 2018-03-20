@@ -64,7 +64,7 @@ class Converter {
 
         $content =
             "--".MULTIPART_BOUNDARY."\r\n".
-            "Content-Disposition: form-data; name=\"".FORM_FIELD."\"; filename=\"".basename($opt[self::FILE_PATH])."\"\r\n".
+            "Content-Disposition: form-data; name=\"".FORM_FIELD."\"; filename=\"".basename($filePath)."\"\r\n".
             "Content-Type: application/zip\r\n\r\n".
             $file."\r\n--".MULTIPART_BOUNDARY."--\r\n";
 
