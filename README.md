@@ -8,9 +8,8 @@ It functions as an easy to use, plug and play library that lets you use [BuildVu
 
 # Installation #
 
-Clone the project and install Composer dependencies using the following:
 ```
-composer install
+composer require idrsolutions/buildvu-php-client
 ```
 
 -----
