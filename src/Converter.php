@@ -12,14 +12,7 @@ class Converter {
     const FILE_PATH = 'filePath';
 
     private static function progress($r) {
-        $out = json_encode($r, JSON_PRETTY_PRINT) . "\r\n";
-        print($out);
-
-    }
-
-    private static function failure($type) {
-        $out = $type . " failed."  . "\r\n";
-        print($out);
+        fwrite(STDOUT, json_encode($r, JSON_PRETTY_PRINT) . "\r\n");
     }
 
     private static function handleProgress($r) {
@@ -27,8 +20,6 @@ class Converter {
         if ($r['state'] === "error") {
             self::progress(array(
                 'state' => $r['state'],
-                'previewPath' => $r['previewPath'],
-                'downloadPath' => $r['downloadPath'],
                 'error' => $r['error'])
             );
         } elseif ($r['state'] === "processed") {
@@ -44,19 +35,21 @@ class Converter {
         }
     }
 
-    public static function convert($opt) {
+    private static function validateInput($opt) {
 
         if (!array_key_exists(self::ENDPOINT, $opt) || !isset($opt[self::ENDPOINT])) {
-            exit("Missing endpoint");
+            self::exitWithError("Missing endpoint.");
         }
         if (!array_key_exists(self::FILE_PATH, $opt) || !isset($opt[self::FILE_PATH])) {
-            exit("Missing filePath");
+            self::exitWithError("Missing filePath.");
         }
         if (!array_key_exists(self::PARAMETERS, $opt) || !isset($opt[self::PARAMETERS])) {
-            exit("Missing parameters");
+            self::exitWithError("Missing parameters.");
         }
+    }
 
-        $endpoint = $opt[self::ENDPOINT];
+    private static function createContext($opt) {
+
         $filePath = $opt[self::FILE_PATH];
         $parameters = $opt[self::PARAMETERS];
 
@@ -64,9 +57,9 @@ class Converter {
         define('FORM_FIELD', 'file');
 
         $header = 'Content-Type: multipart/form-data; boundary='.MULTIPART_BOUNDARY;
-        $file  = file_get_contents($opt[self::FILE_PATH]);
+        $file = file_get_contents($opt[self::FILE_PATH]);
         if (!$file) {
-            exit("File not found");
+            self::exitWithError("File not found.");
         }
 
         $content =
@@ -86,35 +79,50 @@ class Converter {
             )
         );
 
-        $context = stream_context_create($options);
-        $result = file_get_contents($endpoint, false, $context);
-        if ($result === FALSE) {    // ERROR
-            self::failure("upload");
-            exit("failed to upload\n");
-        }
+        return stream_context_create($options);
+    }
 
-        $json = json_decode($result,true);
-        $uuid = $json['uuid'];
+    private static function poll($endpoint, $result) {
+
+        $json = json_decode($result, true);
         $retries = 0;
         $data = array('state' => '');
 
         while ($data['state'] !== 'processed') {
-            $result = file_get_contents($endpoint . "?uuid=" . $uuid);
-            if ($result === FALSE) {    // ERROR
+            $result = file_get_contents($endpoint . "?uuid=" . $json['uuid']);
+            if (!$result) {    // ERROR
                 if ($retries > 3) {
-                    self::failure("conversion");
-                    exit("failed to convert\n");
+                    self::exitWithError("Failed to convert.");
                 }
                 $retries++;
             } else {
                 $data = json_decode($result, true);
                 if ($data['state'] === 'processed') {
                     self::handleProgress($data);
-                    return;
+                    exit(0); // SUCCESS
                 }
                 self::handleProgress($data);
                 sleep(self::POLL_INTERVAL / 1000);
             }
         }
+    }
+
+    private static function exitWithError($printStr) {
+        fwrite(STDERR, $printStr);
+        exit(1);
+    }
+
+    public static function convert($opt) {
+
+        self::validateInput($opt);
+        $endpoint = $opt[self::ENDPOINT];
+        $context = self::createContext($opt);
+
+        $result = file_get_contents($endpoint, false, $context);
+        if (!$result) {    // ERROR
+            self::exitWithError("Failed to upload.");
+        }
+
+        self::poll($endpoint, $result);
     }
 }

@@ -23,4 +23,5 @@ try {
 
     echo $e->getMessage();
     echo $e->getTrace();
+    exit(1);
 }
