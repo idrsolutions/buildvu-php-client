@@ -34,6 +34,7 @@ $converter->convert(array(
         'token' => 'token-if-required'
     ),
     'filePath' => __DIR__ . '/file.pdf',
+    'outputDir' => __DIR__ . '/'
 ));
 ```
 
