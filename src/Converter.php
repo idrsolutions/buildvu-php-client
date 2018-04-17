@@ -7,9 +7,10 @@ class Converter {
     const POLL_INTERVAL = 500; //ms
     const TIMEOUT = 10;  // seconds
 
-    const ENDPOINT = 'endpoint';
-    const PARAMETERS = 'parameters';
-    const FILE_PATH = 'filePath';
+    const BASE_ENDPOINT_KEY = 'baseEndpoint';
+    const PARAMETERS_KEY = 'parameters';
+    const FILE_PATH_KEY = 'filePath';
+    const OUTPUT_DIR_KEY = 'outputDir';
 
     private static function progress($r) {
         fwrite(STDOUT, json_encode($r, JSON_PRETTY_PRINT) . "\r\n");
@@ -37,27 +38,27 @@ class Converter {
 
     private static function validateInput($opt) {
 
-        if (!array_key_exists(self::ENDPOINT, $opt) || !isset($opt[self::ENDPOINT])) {
+        if (!array_key_exists(self::BASE_ENDPOINT_KEY, $opt) || !isset($opt[self::BASE_ENDPOINT_KEY])) {
             self::exitWithError("Missing endpoint.");
         }
-        if (!array_key_exists(self::FILE_PATH, $opt) || !isset($opt[self::FILE_PATH])) {
+        if (!array_key_exists(self::FILE_PATH_KEY, $opt) || !isset($opt[self::FILE_PATH_KEY])) {
             self::exitWithError("Missing filePath.");
         }
-        if (!array_key_exists(self::PARAMETERS, $opt) || !isset($opt[self::PARAMETERS])) {
+        if (!array_key_exists(self::PARAMETERS_KEY, $opt) || !isset($opt[self::PARAMETERS_KEY])) {
             self::exitWithError("Missing parameters.");
         }
     }
 
     private static function createContext($opt) {
 
-        $filePath = $opt[self::FILE_PATH];
-        $parameters = $opt[self::PARAMETERS];
+        $filePath = $opt[self::FILE_PATH_KEY];
+        $parameters = $opt[self::PARAMETERS_KEY];
 
         define('MULTIPART_BOUNDARY', '--------------------------'.microtime(true));
         define('FORM_FIELD', 'file');
 
         $header = 'Content-Type: multipart/form-data; boundary='.MULTIPART_BOUNDARY;
-        $file = file_get_contents($opt[self::FILE_PATH]);
+        $file = file_get_contents($opt[self::FILE_PATH_KEY]);
         if (!$file) {
             self::exitWithError("File not found.");
         }
@@ -74,22 +75,22 @@ class Converter {
                 'TIMEOUT' => self::TIMEOUT,
                 'header' => $header,
                 'content' => $content,
-                self::FILE_PATH => $filePath,
-                self::PARAMETERS => $parameters
+                self::FILE_PATH_KEY => $filePath,
+                self::PARAMETERS_KEY => $parameters
             )
         );
 
         return stream_context_create($options);
     }
 
-    private static function poll($endpoint, $result) {
+    private static function poll($baseEndpoint, $result, $outputDir = NULL) {
 
         $json = json_decode($result, true);
         $retries = 0;
         $data = array('state' => '');
 
         while ($data['state'] !== 'processed') {
-            $result = file_get_contents($endpoint . "?uuid=" . $json['uuid']);
+            $result = file_get_contents($baseEndpoint . "buildvu?uuid=" . $json['uuid']);
             if (!$result) {    // ERROR
                 if ($retries > 3) {
                     self::exitWithError("Failed to convert.");
@@ -99,12 +100,21 @@ class Converter {
                 $data = json_decode($result, true);
                 if ($data['state'] === 'processed') {
                     self::handleProgress($data);
-                    exit(0); // SUCCESS
+                    if ($outputDir != NULL) {
+                        self::download($baseEndpoint . $data['downloadPath'], $outputDir);
+                    }
+                    return $baseEndpoint . $data['previewPath'];  // SUCCESS
                 }
                 self::handleProgress($data);
                 sleep(self::POLL_INTERVAL / 1000);
             }
         }
+    }
+
+    private static function download($downloadPath, $outputDir) {
+        $fileName = pathinfo($downloadPath)['basename'];
+        $fullOutputPath = $outputDir . $fileName;
+        file_put_contents($fullOutputPath, fopen($downloadPath, 'r'));
     }
 
     private static function exitWithError($printStr) {
@@ -115,7 +125,8 @@ class Converter {
     public static function convert($opt) {
 
         self::validateInput($opt);
-        $endpoint = $opt[self::ENDPOINT];
+        $baseEndpoint = $opt[self::BASE_ENDPOINT_KEY];
+        $endpoint = $baseEndpoint . 'buildvu';
         $context = self::createContext($opt);
 
         $result = file_get_contents($endpoint, false, $context);
@@ -123,6 +134,11 @@ class Converter {
             self::exitWithError("Failed to upload.");
         }
 
-        self::poll($endpoint, $result);
+        $outputDir = NULL;
+        if (array_key_exists(self::OUTPUT_DIR_KEY, $opt) || isset($opt[self::OUTPUT_DIR_KEY])) {
+            $outputDir = $opt[self::OUTPUT_DIR_KEY];
+        }
+
+        return self::poll($baseEndpoint, $result, $outputDir);
     }
 }
