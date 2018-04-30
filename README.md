@@ -26,8 +26,6 @@ use IDRsolutions\BuildVuPhpClient\Converter;
 $baseEndpoint = "http://localhost:8080/microservice-example/";
 $endpoint = $baseEndpoint . 'buildvu';
 
-$converter = new Converter();
-
 $previewUrl = Converter::convert(array(
     'endpoint' => $endpoint,
     'parameters' => array(
@@ -35,9 +33,10 @@ $previewUrl = Converter::convert(array(
     ),
     'filePath' => __DIR__ . '/file.pdf',
     'outputDir' => __DIR__ . '/'
+echo $previewUrl
 ));
 ```
-echo $previewUrl;
+
 -----
 
 # Who do I talk to? #
