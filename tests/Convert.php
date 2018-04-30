@@ -16,6 +16,7 @@ try {
         'filePath' => __DIR__ . '/file.pdf',
         'outputDir' => __DIR__ . '/'
     ));
+    echo $previewUrl;
 
 } catch (Exception $e) {
 
