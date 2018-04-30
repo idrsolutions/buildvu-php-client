@@ -28,7 +28,7 @@ $endpoint = $baseEndpoint . 'buildvu';
 
 $converter = new Converter();
 
-$converter->convert(array(
+$previewUrl = Converter::convert(array(
     'endpoint' => $endpoint,
     'parameters' => array(
         'token' => 'token-if-required'
@@ -37,7 +37,7 @@ $converter->convert(array(
     'outputDir' => __DIR__ . '/'
 ));
 ```
-
+echo $previewUrl;
 -----
 
 # Who do I talk to? #
