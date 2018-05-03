@@ -79,7 +79,6 @@ class Converter {
                 self::PARAMETERS_KEY => $parameters
             )
         );
-
         return stream_context_create($options);
     }
 
