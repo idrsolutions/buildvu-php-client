@@ -4,7 +4,7 @@ require_once __DIR__ . "/../vendor/autoload.php";
 
 use IDRsolutions\BuildVuPhpClient\Converter;
 
-$baseEndpoint = "http://localhost:8080/buildvu-microservice-example-1.0.0-alpha/";
+$baseEndpoint = "http://localhost:8080/microservice-example/";
 
 try {
 
