@@ -27,10 +27,9 @@ require_once __DIR__ . "/PATH/TO/vendor/autoload.php";
 use IDRsolutions\BuildVuPhpClient\Converter;
 
 $baseEndpoint = "http://localhost:8080/microservice-example/";
-$endpoint = $baseEndpoint . 'buildvu';
 
 $previewUrl = Converter::convert(array(
-    'endpoint' => $endpoint,
+    'baseEndpoint' => $baseEndpoint,
     'parameters' => array(
         'token' => 'token-if-required'
     ),
@@ -66,10 +65,9 @@ require_once __DIR__ . "/../vendor/autoload.php";
 use IDRsolutions\BuildVuPhpClient\Converter;
 
 $baseEndpoint = "http://localhost:8080/microservice-example/";
-$endpoint = $baseEndpoint . 'buildvu';
 
 $previewUrl = Converter::convert(array(
-    'endpoint' => $endpoint,
+    'baseEndpoint' => $baseEndpoint,
     'parameters' => array(
         'token' => 'token-if-required'
     ),
