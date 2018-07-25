@@ -104,9 +104,9 @@ class Converter {
                 if ($data['state'] === 'processed') {
                     self::handleProgress($data);
                     if ($outputDir != NULL) {
-                        self::download($baseEndpoint . $data['downloadPath'], $outputDir);
+                        self::download($data['downloadPath'], $outputDir);
                     }
-                    return $baseEndpoint . $data['previewPath'];  // SUCCESS
+                    return $data['previewPath'];  // SUCCESS
                 }
                 self::handleProgress($data);
                 sleep(self::POLL_INTERVAL / 1000);
