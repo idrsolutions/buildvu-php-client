@@ -30,8 +30,8 @@ class Converter {
         } elseif ($r['state'] === "processed") {
             self::progress(array(
                 'state' => $r['state'],
-                'previewPath' => $r['previewPath'],
-                'downloadPath' => $r['downloadPath'])
+                'previewUrl' => $r['previewUrl'],
+                'downloadUrl' => $r['downloadUrl'])
             );
         } else {
             self::progress(array(
@@ -104,9 +104,9 @@ class Converter {
                 if ($data['state'] === 'processed') {
                     self::handleProgress($data);
                     if ($outputDir != NULL) {
-                        self::download($baseEndpoint . $data['downloadPath'], $outputDir);
+                        self::download($data['downloadUrl'], $outputDir);
                     }
-                    return $baseEndpoint . $data['previewPath'];  // SUCCESS
+                    return $data['previewUrl'];  // SUCCESS
                 }
                 self::handleProgress($data);
                 sleep(self::POLL_INTERVAL / 1000);
@@ -114,10 +114,10 @@ class Converter {
         }
     }
 
-    private static function download($downloadPath, $outputDir) {
-        $fileName = pathinfo($downloadPath)['basename'];
+    private static function download($downloadUrl, $outputDir) {
+        $fileName = pathinfo($downloadUrl)['basename'];
         $fullOutputPath = $outputDir . $fileName;
-        file_put_contents($fullOutputPath, fopen($downloadPath, 'r'));
+        file_put_contents($fullOutputPath, fopen($downloadUrl, 'r'));
     }
 
     private static function exitWithError($printStr) {
