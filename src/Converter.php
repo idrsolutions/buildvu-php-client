@@ -14,6 +14,7 @@ class Converter {
     const BASE_ENDPOINT_KEY = 'baseEndpoint';
     const PARAMETERS_KEY = 'parameters';
     const FILE_PATH_KEY = 'filePath';
+    const CONVERSION_URL_KEY = 'conversionUrl';
     const OUTPUT_DIR_KEY = 'outputDir';
 
     private static function progress($r) {
@@ -45,33 +46,45 @@ class Converter {
         if (!array_key_exists(self::BASE_ENDPOINT_KEY, $opt) || !isset($opt[self::BASE_ENDPOINT_KEY])) {
             self::exitWithError("Missing endpoint.");
         }
-        if (!array_key_exists(self::FILE_PATH_KEY, $opt) || !isset($opt[self::FILE_PATH_KEY])) {
-            self::exitWithError("Missing filePath.");
-        }
         if (!array_key_exists(self::PARAMETERS_KEY, $opt) || !isset($opt[self::PARAMETERS_KEY])) {
             self::exitWithError("Missing parameters.");
-        }
+        }        
     }
 
     private static function createContext($opt) {
+        
+        $filePath = null;
+        $conversionUrl = null;
 
-        $filePath = $opt[self::FILE_PATH_KEY];
         $parameters = $opt[self::PARAMETERS_KEY];
-
-        define('MULTIPART_BOUNDARY', '--------------------------'.microtime(true));
-        define('FORM_FIELD', 'file');
-
-        $header = 'Content-Type: multipart/form-data; boundary='.MULTIPART_BOUNDARY;
-        $file = file_get_contents($opt[self::FILE_PATH_KEY]);
-        if (!$file) {
-            self::exitWithError("File not found.");
+        if(array_key_exists(self::FILE_PATH_KEY, $opt)) {
+            $filePath = $opt[self::FILE_PATH_KEY];
+        }        
+        if(array_key_exists(self::CONVERSION_URL_KEY, $opt)) {
+            $conversionUrl = $opt[self::CONVERSION_URL_KEY];
         }
 
-        $content =
-            "--".MULTIPART_BOUNDARY."\r\n".
-            "Content-Disposition: form-data; name=\"".FORM_FIELD."\"; filename=\"".basename($filePath)."\"\r\n".
-            "Content-Type: application/zip\r\n\r\n".
-            $file."\r\n--".MULTIPART_BOUNDARY."--\r\n";
+        if (isset($filePath)) {
+            define('MULTIPART_BOUNDARY', '--------------------------'.microtime(true));
+            define('FORM_FIELD', 'file');
+            
+            $file = file_get_contents($filePath);
+            if (!$file) {
+                self::exitWithError("File not found.");
+            }
+
+            $header = 'Content-Type: multipart/form-data; boundary='.MULTIPART_BOUNDARY;
+            $content = "--".MULTIPART_BOUNDARY."\r\n".
+                "Content-Disposition: form-data; name=\"".FORM_FIELD."\";filename=\"".basename($filePath)."\"\r\n".
+                "Content-Type: application/zip\r\n\r\n".$file."\r\n--".MULTIPART_BOUNDARY."--\r\n";
+        } 
+        else if (isset($conversionUrl)) {
+            $content = "conversionUrl=".$conversionUrl;
+            $header = "Content-Type: application/x-www-form-urlencoded\r\nContent-Length: ".strlen($content);
+        }
+        else {
+            self::exitWithError("No input given!");
+        }
 
         $options = array(
             'http' => array(
