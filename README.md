@@ -2,7 +2,7 @@
 
 BuildVu PHP Client is the PHP API for IDRSolutions' [BuildVu Microservice Example](https://github.com/idrsolutions/buildvu-microservice-example).
 
-It functions as an easy to use, plug and play library that lets you use [BuildVu](https://www.idrsolutions.com/buildvu/) via a REST endpoint from PHP. 
+It functions as an easy to use, plug and play library that lets you use [BuildVu](https://www.idrsolutions.com/buildvu/) via a REST endpoint from PHP.
 
 For tutorials on how to deploy BuildVu to an app server, visit the [documentation](https://support.idrsolutions.com/hc/en-us/sections/360000444652-Deploy-BuildVu-to-an-app-server).
 
@@ -34,6 +34,7 @@ $previewUrl = Converter::convert(array(
         'token' => 'token-if-required'
     ),
     'filePath' => __DIR__ . '/file.pdf',
+    //'conversionUrl' => 'http://path.to/file.pdf'
     'outputDir' => __DIR__ . '/'
 ));
 echo $previewUrl;
@@ -72,6 +73,7 @@ $previewUrl = Converter::convert(array(
         'token' => 'token-if-required'
     ),
     'filePath' => __DIR__ . 'input_files/file.pdf',
+    //'conversionUrl' => 'http://path.to/file.pdf'
     'outputDir' => __DIR__ . 'output/'
 ));
 echo $previewUrl;
@@ -138,6 +140,7 @@ try {
             'token' => 'token-if-required'
         ),
         'filePath' => __DIR__ . '/../conversion/input_files/file.pdf',
+        //'conversionUrl' => 'http://path.to/file.pdf'
         'outputDir' => __DIR__ . '/../conversion/output'
     ));
     echo $previewUrl;

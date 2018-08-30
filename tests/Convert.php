@@ -15,7 +15,7 @@ try {
         ),
         // Upload a local file to the server.
         'filePath' => __DIR__ . 'path/to/file.pdf',
-        // filePath takes precedence over conversion url. Remove file to use conversionUrl parameter.
+        // Convert file from url (file takes precedence over this option).
         'conversionUrl' => 'http://path.to/file.pdf'
         //'outputDir' => __DIR__ . '/'
     ));
