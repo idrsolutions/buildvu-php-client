@@ -18,7 +18,7 @@ composer require idrsolutions/buildvu-php-client
 
 # Usage #
 
-## Example Conversion Script ##
+## Example Conversion Script with File Upload ##
 ```php
 <?php
 
@@ -34,11 +34,32 @@ $previewUrl = Converter::convert(array(
         'token' => 'token-if-required'
     ),
     'filePath' => __DIR__ . '/file.pdf',
-    //'conversionUrl' => 'http://path.to/file.pdf'
     'outputDir' => __DIR__ . '/'
 ));
 echo $previewUrl;
 ```
+
+## Example Conversion Script Passing URL to Server ##
+```php
+<?php
+
+require_once __DIR__ . "/PATH/TO/vendor/autoload.php";
+
+use IDRsolutions\BuildVuPhpClient\Converter;
+
+$baseEndpoint = "http://localhost:8080/microservice-example/";
+
+$previewUrl = Converter::convert(array(
+    'baseEndpoint' => $baseEndpoint,
+    'parameters' => array(
+        'token' => 'token-if-required'
+    ),
+    'filePath' => __DIR__ . '/file.pdf',
+    'conversionUrl' => 'http://path.to/file.pdf'
+));
+echo $previewUrl;
+```
+
 ## Command Line ##
 ```
 myproject/
@@ -73,7 +94,6 @@ $previewUrl = Converter::convert(array(
         'token' => 'token-if-required'
     ),
     'filePath' => __DIR__ . 'input_files/file.pdf',
-    //'conversionUrl' => 'http://path.to/file.pdf'
     'outputDir' => __DIR__ . 'output/'
 ));
 echo $previewUrl;
@@ -140,7 +160,6 @@ try {
             'token' => 'token-if-required'
         ),
         'filePath' => __DIR__ . '/../conversion/input_files/file.pdf',
-        //'conversionUrl' => 'http://path.to/file.pdf'
         'outputDir' => __DIR__ . '/../conversion/output'
     ));
     echo $previewUrl;

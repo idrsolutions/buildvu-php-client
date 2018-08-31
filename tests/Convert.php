@@ -17,7 +17,7 @@ try {
         'filePath' => __DIR__ . 'path/to/file.pdf',
         // Convert file from url (file takes precedence over this option).
         'conversionUrl' => 'http://path.to/file.pdf'
-        //'outputDir' => __DIR__ . '/'
+        'outputDir' => __DIR__ . '/'
     ));
     echo $previewUrl;
 
