@@ -54,7 +54,8 @@ $previewUrl = Converter::convert(array(
     'parameters' => array(
         'token' => 'token-if-required'
     ),
-    'conversionUrl' => 'http://path.to/file.pdf'
+    'conversionUrl' => 'http://path.to/file.pdf',
+    'outputDir' => __DIR__ . '/'
 ));
 echo $previewUrl;
 ```
