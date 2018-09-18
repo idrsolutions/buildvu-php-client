@@ -2,7 +2,7 @@
 
 BuildVu PHP Client is the PHP API for IDRSolutions' [BuildVu Microservice Example](https://github.com/idrsolutions/buildvu-microservice-example).
 
-It functions as an easy to use, plug and play library that lets you use [BuildVu](https://www.idrsolutions.com/buildvu/) via a REST endpoint from PHP. 
+It functions as an easy to use, plug and play library that lets you use [BuildVu](https://www.idrsolutions.com/buildvu/) via a REST endpoint from PHP.
 
 For tutorials on how to deploy BuildVu to an app server, visit the [documentation](https://support.idrsolutions.com/hc/en-us/sections/360000444652-Deploy-BuildVu-to-an-app-server).
 
@@ -18,7 +18,7 @@ composer require idrsolutions/buildvu-php-client
 
 # Usage #
 
-## Example Conversion Script ##
+## Example Conversion Script with File Upload ##
 ```php
 <?php
 
@@ -38,6 +38,28 @@ $previewUrl = Converter::convert(array(
 ));
 echo $previewUrl;
 ```
+
+## Example Conversion Script Passing URL to Server ##
+```php
+<?php
+
+require_once __DIR__ . "/PATH/TO/vendor/autoload.php";
+
+use IDRsolutions\BuildVuPhpClient\Converter;
+
+$baseEndpoint = "http://localhost:8080/microservice-example/";
+
+$previewUrl = Converter::convert(array(
+    'baseEndpoint' => $baseEndpoint,
+    'parameters' => array(
+        'token' => 'token-if-required'
+    ),
+    'conversionUrl' => 'http://path.to/file.pdf',
+    'outputDir' => __DIR__ . '/'
+));
+echo $previewUrl;
+```
+
 ## Command Line ##
 ```
 myproject/

@@ -13,7 +13,10 @@ try {
         'parameters' => array(
             'token' => 'token-if-required'
         ),
-        'filePath' => __DIR__ . '/file.pdf',
+        // Upload a local file to the server.
+        'filePath' => __DIR__ . 'path/to/file.pdf',
+        // Convert file from url (file takes precedence over this option).
+        'conversionUrl' => 'http://path.to/file.pdf'
         'outputDir' => __DIR__ . '/'
     ));
     echo $previewUrl;
