@@ -11,11 +11,14 @@ class Converter {
     const POLL_INTERVAL = 500; //ms
     const TIMEOUT = 10;  // seconds
 
-    const BASE_ENDPOINT_KEY = 'baseEndpoint';
-    const PARAMETERS_KEY = 'parameters';
-    const FILE_PATH_KEY = 'filePath';
-    const CONVERSION_URL_KEY = 'conversionUrl';
-    const OUTPUT_DIR_KEY = 'outputDir';
+    const KEY_ENDPOINT = 'endpoint';
+    const KEY_PARAMETERS = 'parameters';
+    const KEY_INPUT = 'input';
+    const KEY_FILE_PATH = 'file';
+    const KEY_CONVERSION_URL = 'url';
+    
+    const INPUT_UPLOAD = 'upload';
+    const INPUT_DOWNLOAD = 'download';
 
     private static function progress($r) {
         fwrite(STDOUT, json_encode($r, JSON_PRETTY_PRINT) . "\r\n");
@@ -23,12 +26,12 @@ class Converter {
 
     private static function handleProgress($r) {
 
-        if ($r['state'] === "error") {
+        if ($r['state'] === 'error') {
             self::progress(array(
                 'state' => $r['state'],
                 'error' => $r['error'])
             );
-        } elseif ($r['state'] === "processed") {
+        } elseif ($r['state'] === 'processed') {
             self::progress(array(
                 'state' => $r['state'],
                 'previewUrl' => $r['previewUrl'],
@@ -43,97 +46,99 @@ class Converter {
 
     private static function validateInput($opt) {
 
-        if (!array_key_exists(self::BASE_ENDPOINT_KEY, $opt) || !isset($opt[self::BASE_ENDPOINT_KEY])) {
-            self::exitWithError("Missing endpoint.");
+        if (!array_key_exists(self::KEY_ENDPOINT, $opt) || !isset($opt[self::KEY_ENDPOINT])) {
+            self::exitWithError('Missing endpoint.');
         }
-        if (!array_key_exists(self::PARAMETERS_KEY, $opt) || !isset($opt[self::PARAMETERS_KEY])) {
-            self::exitWithError("Missing parameters.");
+        if (!array_key_exists(self::KEY_PARAMETERS, $opt) || !isset($opt[self::KEY_PARAMETERS])) {
+            self::exitWithError('Missing parameters.');
+        } else {
+            $params = $opt[self::KEY_PARAMETERS];
+        }
+        if (array_key_exists(self::KEY_INPUT, $params) && $params[self::KEY_INPUT] === self::INPUT_UPLOAD && !array_key_exists(self::KEY_FILE_PATH, $opt)) {
+            self::exitWithError('Missing file.');
+        }
+        if (array_key_exists(self::KEY_INPUT, $params) && $params[self::KEY_INPUT] === self::INPUT_DOWNLOAD && !array_key_exists(self::KEY_CONVERSION_URL, $params)) {
+            self::exitWithError('Missing url.');
         }
     }
 
     private static function createContext($opt) {
+        
+        $parameters = $opt[self::KEY_PARAMETERS];
 
-        $filePath = null;
-        $conversionUrl = null;
-
-        $parameters = $opt[self::PARAMETERS_KEY];
-        if(array_key_exists(self::FILE_PATH_KEY, $opt)) {
-            $filePath = $opt[self::FILE_PATH_KEY];
-        }
-        if(array_key_exists(self::CONVERSION_URL_KEY, $opt)) {
-            $conversionUrl = $opt[self::CONVERSION_URL_KEY];
-        }
-
-        if (isset($filePath)) {
-            $inputType = "upload";
-
-            define('MULTIPART_BOUNDARY', '--------------------------'.microtime(true));
-            define('FORM_FIELD', 'file');
-
-            $file = file_get_contents($filePath);
-            if (!$file) {
-                self::exitWithError("File not found.");
+        if ($parameters[self::KEY_INPUT] === self::INPUT_UPLOAD) {
+            if(array_key_exists(self::KEY_FILE_PATH, $opt)) {
+                $filePath = $opt[self::KEY_FILE_PATH];
             }
-
+            define('MULTIPART_BOUNDARY', '--------------------------'.microtime(true));
             $header = 'Content-Type: multipart/form-data; boundary='.MULTIPART_BOUNDARY;
-            $content = "--".MULTIPART_BOUNDARY."\r\n".
-                "Content-Disposition: form-data; name=\"".FORM_FIELD."\";filename=\"".basename($filePath)."\"\r\n".
-                "Content-Type: application/zip\r\n\r\n".$file."\r\n--".MULTIPART_BOUNDARY."\r\n".
-                "Content-Disposition: form-data; name=\"input\"\r\n".
-                "Content-Type: text/plain\r\n\r\nupload\r\n--".MULTIPART_BOUNDARY."--\r\n";
-        }
-        else if (isset($conversionUrl)) {
-            $content = "input=download&url=".$conversionUrl;
-            $header = "Content-Type: application/x-www-form-urlencoded\r\nContent-Length: ".strlen($content);
+            $content = self::generateMultipartContent($parameters, $filePath, MULTIPART_BOUNDARY);
         }
         else {
-            self::exitWithError("No input given!");
+            $content = http_build_query($parameters);
+            $header = "Content-Type: application/x-www-form-urlencoded\r\nContent-Length: ".strlen($content);
         }
 
         $options = array(
             'http' => array(
-                'method' => "POST",
+                'method' => 'POST',
                 'TIMEOUT' => self::TIMEOUT,
                 'header' => $header,
-                'content' => $content,
-                self::FILE_PATH_KEY => $filePath,
-                self::PARAMETERS_KEY => $parameters
+                'content' => $content
             )
         );
         return stream_context_create($options);
     }
+    
+    private static function generateMultipartContent($parameters, $filePath, $multipartBoundary) {
+        
+        define('FORM_FIELD', 'file');
 
-    private static function poll($baseEndpoint, $result, $outputDir = NULL) {
+        $file = file_get_contents($filePath);
+        if (!$file) {
+            self::exitWithError("File not found.");
+        }
+        
+        $content = '--'.$multipartBoundary."\r\n".
+            'Content-Disposition: form-data; name="'.FORM_FIELD.'"; filename="'.basename($filePath)."\"\r\n".
+            "Content-Type: application/zip\r\n\r\n".$file."\r\n--".$multipartBoundary;
+
+        foreach ($parameters as $name => $value) {
+            $content .= "\r\nContent-Disposition: form-data; name=\"" . $name . "\"\r\n" .
+                "Content-Type: text/plain\r\n\r\n" . $value . "\r\n--" . $multipartBoundary;
+        }
+
+        return $content . "--\r\n";
+    }
+
+    private static function poll($endpoint, $result) {
 
         $json = json_decode($result, true);
         $retries = 0;
         $data = array('state' => '');
 
         while ($data['state'] !== 'processed') {
-            $result = file_get_contents($baseEndpoint . "buildvu?uuid=" . $json['uuid']);
+            $result = file_get_contents($endpoint . '?uuid=' . $json['uuid']);
             if (!$result) {    // ERROR
                 if ($retries > 3) {
-                    self::exitWithError("Failed to convert.");
+                    self::exitWithError('Failed to convert.');
                 }
                 $retries++;
             } else {
                 $data = json_decode($result, true);
                 if ($data['state'] === 'processed') {
                     self::handleProgress($data);
-                    if ($outputDir != NULL) {
-                        self::download($data['downloadUrl'], $outputDir);
-                    }
-                    return $data['previewUrl'];  // SUCCESS
+                    return $data;  // SUCCESS
                 }
+                
                 self::handleProgress($data);
                 usleep(self::POLL_INTERVAL * 1000);
             }
         }
     }
 
-    private static function download($downloadUrl, $outputDir) {
-        $fileName = pathinfo($downloadUrl)['basename'];
-        $fullOutputPath = $outputDir . $fileName;
+    private static function download($downloadUrl, $outputDir, $filename) {
+        $fullOutputPath = $outputDir . $filename;
         file_put_contents($fullOutputPath, fopen($downloadUrl, 'r'));
     }
 
@@ -141,24 +146,46 @@ class Converter {
         fwrite(STDERR, $printStr);
         exit(1);
     }
+    
+    /**
+     * Use the server response to download a zip file of the converted output
+     * 
+     * @param type $results The server response generated from the convert method
+     * @param type $outputDir The directory where the output will be saved
+     * @param type $filename (optional) A filename for the downloaded zip file
+     */
+    public static function downloadOutput($results, $outputDir, $filename = null) {
+        
+        $downloadUrl = $results['downloadUrl'];
+        
+        if ($filename == null) {
+            $filename = pathinfo($downloadUrl)['basename'];
+        }
+        
+        self::download($downloadUrl, $outputDir, $filename);
+    }
 
+    /**
+     * Start a conversion of a file for a BuildVu MicroService server
+     * 
+     * @param array $opt An associative array of the conversion options desired
+     * @return array The response from the server after the conversion completes
+     */
     public static function convert($opt) {
 
         self::validateInput($opt);
-        $baseEndpoint = $opt[self::BASE_ENDPOINT_KEY];
-        $endpoint = $baseEndpoint . 'buildvu';
+        $endpoint = $opt[self::KEY_ENDPOINT].'buildvu';
         $context = self::createContext($opt);
 
         $result = file_get_contents($endpoint, false, $context);
-        if (!$result) {    // ERROR
-            self::exitWithError("Failed to upload.");
+        if (!$result) {
+            self::exitWithError('Failed to upload.');
+        }
+        
+        if ($opt[self::KEY_PARAMETERS]['callbackUrl']) {
+            return array('state'=>'queued');
         }
 
-        $outputDir = NULL;
-        if (array_key_exists(self::OUTPUT_DIR_KEY, $opt) || isset($opt[self::OUTPUT_DIR_KEY])) {
-            $outputDir = $opt[self::OUTPUT_DIR_KEY];
-        }
-
-        return self::poll($baseEndpoint, $result, $outputDir);
+        return self::poll($endpoint, $result);
     }
 }
