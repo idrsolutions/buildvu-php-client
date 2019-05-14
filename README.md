@@ -18,6 +18,8 @@ composer require idrsolutions/buildvu-php-client
 
 # Usage #
 
+For additional values to add to ```parameters```, please refer to the [API](https://github.com/idrsolutions/buildvu-microservice-example/blob/master/API.md).
+
 ## Example Conversion Script with File Upload ##
 ```php
 <?php
@@ -26,17 +28,19 @@ require_once __DIR__ . "/PATH/TO/vendor/autoload.php";
 
 use IDRsolutions\BuildVuPhpClient\Converter;
 
-$baseEndpoint = "http://localhost:8080/microservice-example/";
+$endpoint = "http://localhost:8080/microservice-example/";
 
-$previewUrl = Converter::convert(array(
-    'baseEndpoint' => $baseEndpoint,
+$conversion_results = Converter::convert(array(
+    'endpoint' => $endpoint,
+    'file' => __DIR__ . 'path/to/file.pdf',
     'parameters' => array(
-        'token' => 'token-if-required'
-    ),
-    'filePath' => __DIR__ . '/file.pdf',
-    'outputDir' => __DIR__ . '/'
+        'input' => Converter::INPUT_UPLOAD
+    )
 ));
-echo $previewUrl;
+
+Converter::downloadOutput($conversion_results, __DIR__ . '/');
+
+echo $conversion_results['previewUrl'];
 ```
 
 ## Example Conversion Script Passing URL to Server ##
@@ -47,17 +51,19 @@ require_once __DIR__ . "/PATH/TO/vendor/autoload.php";
 
 use IDRsolutions\BuildVuPhpClient\Converter;
 
-$baseEndpoint = "http://localhost:8080/microservice-example/";
+$endpoint = "http://localhost:8080/microservice-example/";
 
-$previewUrl = Converter::convert(array(
-    'baseEndpoint' => $baseEndpoint,
+$conversion_results = Converter::convert(array(
+    'endpoint' => $endpoint,
     'parameters' => array(
-        'token' => 'token-if-required'
-    ),
-    'conversionUrl' => 'http://path.to/file.pdf',
-    'outputDir' => __DIR__ . '/'
+        'input' => Converter::INPUT_DOWNLOAD,
+        'url' => 'http://path.to/file.pdf'
+    )
 ));
-echo $previewUrl;
+
+Converter::downloadOutput($conversion_results, __DIR__ . '/');
+
+echo $conversion_results['previewUrl'];
 ```
 
 ## Command Line ##
@@ -86,17 +92,19 @@ require_once __DIR__ . "/../vendor/autoload.php";
 
 use IDRsolutions\BuildVuPhpClient\Converter;
 
-$baseEndpoint = "http://localhost:8080/microservice-example/";
+$endpoint = "http://localhost:8080/microservice-example/";
 
-$previewUrl = Converter::convert(array(
-    'baseEndpoint' => $baseEndpoint,
+$conversion_results = Converter::convert(array(
+    'endpoint' => $endpoint,
+    'file' => __DIR__ . 'input_files/file.pdf',
     'parameters' => array(
-        'token' => 'token-if-required'
-    ),
-    'filePath' => __DIR__ . 'input_files/file.pdf',
-    'outputDir' => __DIR__ . 'output/'
+        'input' => Converter::INPUT_UPLOAD
+    )
 ));
-echo $previewUrl;
+
+Converter::downloadOutput($conversion_results, __DIR__ . '/output/');
+
+echo $conversion_results['previewUrl'];
 ```
 
 #### Execute ####
@@ -150,22 +158,22 @@ require_once __DIR__ . "/vendor/autoload.php";
 
 use IDRsolutions\BuildVuPhpClient\Converter;
 
-$baseEndpoint = "http://localhost:8080/microservice-example/";
+$endpoint = "http://localhost:8080/microservice-example/";
 
 try {
-
-    $previewUrl = Converter::convert(array(
-        'baseEndpoint' => $baseEndpoint,
+    $conversion_results = Converter::convert(array(
+        'endpoint' => $endpoint,
+        'file' => __DIR__ . '/../conversion/input_files/file.pdf',
         'parameters' => array(
-            'token' => 'token-if-required'
-        ),
-        'filePath' => __DIR__ . '/../conversion/input_files/file.pdf',
-        'outputDir' => __DIR__ . '/../conversion/output'
+            'input' => Converter::INPUT_UPLOAD
+        )
     ));
-    echo $previewUrl;
-
+    
+    Converter::downloadOutput($conversion_results, __DIR__ . '/../conversion/output');
+    
+    echo $conversion_results['previewUrl'];
+    
 } catch (Exception $e) {
-
     echo $e->getMessage();
     echo $e->getTrace();
     exit(1);
