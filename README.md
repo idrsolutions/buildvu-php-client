@@ -40,7 +40,7 @@ $conversion_results = Converter::convert(array(
 
 Converter::downloadOutput($conversion_results, __DIR__ . '/');
 
-echo $conversion_results['downloadUrk'];
+echo $conversion_results['downloadUrl'];
 ```
 
 ## Example Conversion Script Passing URL to Server ##
@@ -63,7 +63,7 @@ $conversion_results = Converter::convert(array(
 
 Converter::downloadOutput($conversion_results, __DIR__ . '/');
 
-echo $conversion_results['downloadUrk'];
+echo $conversion_results['downloadUrl'];
 ```
 
 ## Command Line ##
@@ -104,7 +104,7 @@ $conversion_results = Converter::convert(array(
 
 Converter::downloadOutput($conversion_results, __DIR__ . '/output/');
 
-echo $conversion_results['downloadUrk'];
+echo $conversion_results['downloadUrl'];
 ```
 
 #### Execute ####
@@ -171,7 +171,7 @@ try {
     
     Converter::downloadOutput($conversion_results, __DIR__ . '/../conversion/output');
     
-    echo $conversion_results['downloadUrk'];
+    echo $conversion_results['downloadUrl'];
     
 } catch (Exception $e) {
     echo $e->getMessage();
