@@ -28,7 +28,7 @@ require_once __DIR__ . "/PATH/TO/vendor/autoload.php";
 
 use IDRsolutions\BuildVuPhpClient\Converter;
 
-$endpoint = "http://localhost:8080/microservice-example/";
+$endpoint = "http://localhost:8080/buildvu-microservice/";
 
 $conversion_results = Converter::convert(array(
     'endpoint' => $endpoint,
@@ -51,7 +51,7 @@ require_once __DIR__ . "/PATH/TO/vendor/autoload.php";
 
 use IDRsolutions\BuildVuPhpClient\Converter;
 
-$endpoint = "http://localhost:8080/microservice-example/";
+$endpoint = "http://localhost:8080/buildvu-microservice/";
 
 $conversion_results = Converter::convert(array(
     'endpoint' => $endpoint,
@@ -92,7 +92,7 @@ require_once __DIR__ . "/../vendor/autoload.php";
 
 use IDRsolutions\BuildVuPhpClient\Converter;
 
-$endpoint = "http://localhost:8080/microservice-example/";
+$endpoint = "http://localhost:8080/buildvu-microservice/";
 
 $conversion_results = Converter::convert(array(
     'endpoint' => $endpoint,
@@ -158,7 +158,7 @@ require_once __DIR__ . "/vendor/autoload.php";
 
 use IDRsolutions\BuildVuPhpClient\Converter;
 
-$endpoint = "http://localhost:8080/microservice-example/";
+$endpoint = "http://localhost:8080/buildvu-microservice/";
 
 try {
     $conversion_results = Converter::convert(array(
