@@ -83,6 +83,7 @@ class Converter {
             'http' => array(
                 'method' => 'POST',
                 'TIMEOUT' => self::TIMEOUT,
+                'ignore_errors' => TRUE,
                 'header' => $header,
                 'content' => $content
             )
@@ -130,7 +131,7 @@ class Converter {
                     self::handleProgress($data);
                     return $data;  // SUCCESS
                 }
-                
+
                 self::handleProgress($data);
                 usleep(self::POLL_INTERVAL * 1000);
             }
@@ -178,14 +179,22 @@ class Converter {
         $context = self::createContext($opt);
 
         $result = file_get_contents($endpoint, false, $context);
-        if (!$result) {
-            self::exitWithError('Failed to upload.');
+        if (substr($http_response_header[0], 9, 3) !== '200') { //Check http response code for if the request failed
+            if ($result !== false) { //If a text response was given
+                $decoded = json_decode($result, true);//Decode the json
+                if(array_key_exists('error',$decoded)) {
+                    self::exitWithError($decoded['error']); //Exit with the error provided
+                } else {
+                    self::exitWithError('Failed to upload.');
+                }
+            } else {
+                self::exitWithError('Failed to upload.');
+            }
         }
         
-        if ($opt[self::KEY_PARAMETERS]['callbackUrl']) {
+        if (array_key_exists('callbackUrl', $opt[self::KEY_PARAMETERS])) {
             return array('state'=>'queued');
         }
-
         return self::poll($endpoint, $result);
     }
 }
