@@ -70,9 +70,9 @@ class Converter {
             if(array_key_exists(self::KEY_FILE_PATH, $opt)) {
                 $filePath = $opt[self::KEY_FILE_PATH];
             }
-            define('MULTIPART_BOUNDARY', '--------------------------'.microtime(true));
-            $header = 'Content-Type: multipart/form-data; boundary='.MULTIPART_BOUNDARY;
-            $content = self::generateMultipartContent($parameters, $filePath, MULTIPART_BOUNDARY);
+            $multipart_Boundary = '--------------------------'.microtime(true);
+            $header = 'Content-Type: multipart/form-data; boundary=' .$multipart_Boundary;
+            $content = self::generateMultipartContent($parameters, $filePath, $multipart_Boundary);
         }
         else {
             $content = http_build_query($parameters);
@@ -93,7 +93,7 @@ class Converter {
     
     private static function generateMultipartContent($parameters, $filePath, $multipartBoundary) {
         
-        define('FORM_FIELD', 'file');
+        $form_field = "file";
 
         $file = file_get_contents($filePath);
         if (!$file) {
@@ -101,7 +101,7 @@ class Converter {
         }
         
         $content = '--'.$multipartBoundary."\r\n".
-            'Content-Disposition: form-data; name="'.FORM_FIELD.'"; filename="'.basename($filePath)."\"\r\n".
+            'Content-Disposition: form-data; name="' .$form_field. '"; filename="'.basename($filePath)."\"\r\n".
             "Content-Type: application/zip\r\n\r\n".$file."\r\n--".$multipartBoundary;
 
         foreach ($parameters as $name => $value) {
@@ -143,9 +143,9 @@ class Converter {
         file_put_contents($fullOutputPath, fopen($downloadUrl, 'r'));
     }
 
-    private static function exitWithError($printStr) {
+    private static function exitWithError($printStr, $errCode = 0) {
         fwrite(STDERR, $printStr);
-        exit(1);
+        throw new \Exception($printStr, $errCode);
     }
     
     /**
@@ -179,11 +179,12 @@ class Converter {
         $context = self::createContext($opt);
 
         $result = file_get_contents($endpoint, false, $context);
-        if (substr($http_response_header[0], 9, 3) !== '200') { //Check http response code for if the request failed
+         $http_response = substr($http_response_header[0], 9, 3);
+        if ($http_response !== '200') { //Check http response code for if the request failed
             if ($result !== false) { //If a text response was given
                 $decoded = json_decode($result, true);//Decode the json
                 if(array_key_exists('error',$decoded)) {
-                    self::exitWithError($decoded['error']); //Exit with the error provided
+                    self::exitWithError("http code :" .$http_response. "" .$decoded['error'], $http_response ); //Exit with the error provided
                 } else {
                     self::exitWithError('Failed to upload.');
                 }
