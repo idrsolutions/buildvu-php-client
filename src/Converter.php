@@ -179,7 +179,7 @@ class Converter {
         $context = self::createContext($opt);
 
         $result = file_get_contents($endpoint, false, $context);
-         $http_response = substr($http_response_header[0], 9, 3);
+        $http_response = substr($http_response_header[0], 9, 3);
         if ($http_response !== '200') { //Check http response code for if the request failed
             if ($result !== false) { //If a text response was given
                 $decoded = json_decode($result, true);//Decode the json
