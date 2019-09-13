@@ -184,7 +184,7 @@ class Converter {
             if ($result !== false) { //If a text response was given
                 $decoded = json_decode($result, true);//Decode the json
                 if(array_key_exists('error',$decoded)) {
-                    self::exitWithError("http code :" .$http_response. "" .$decoded['error'], $http_response ); //Exit with the error provided
+                    self::exitWithError("http error code " . $http_response . ": " . $decoded['error'], $http_response ); //Exit with the error provided
                 } else {
                     self::exitWithError('Failed to upload.');
                 }
