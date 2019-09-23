@@ -28,7 +28,7 @@ require_once __DIR__ . "/PATH/TO/vendor/autoload.php";
 
 use IDRsolutions\BuildVuPhpClient\Converter;
 
-$endpoint = "http://localhost:8080/microservice-example/";
+$endpoint = "http://localhost:8080/buildvu-microservice/";
 
 $conversion_results = Converter::convert(array(
     'endpoint' => $endpoint,
@@ -51,7 +51,7 @@ require_once __DIR__ . "/PATH/TO/vendor/autoload.php";
 
 use IDRsolutions\BuildVuPhpClient\Converter;
 
-$endpoint = "http://localhost:8080/microservice-example/";
+$endpoint = "http://localhost:8080/buildvu-microservice/";
 
 $conversion_results = Converter::convert(array(
     'endpoint' => $endpoint,
@@ -92,7 +92,7 @@ require_once __DIR__ . "/../vendor/autoload.php";
 
 use IDRsolutions\BuildVuPhpClient\Converter;
 
-$endpoint = "http://localhost:8080/microservice-example/";
+$endpoint = "http://localhost:8080/buildvu-microservice/";
 
 $conversion_results = Converter::convert(array(
     'endpoint' => $endpoint,
@@ -124,7 +124,7 @@ php convert.php
     "previewPath": "output\/c0096728-3490-4f5f-96a8-0f20a5a1244c\/file\/index.html",
     "downloadPath": "output\/c0096728-3490-4f5f-96a8-0f20a5a1244c\/file.zip"
 }
-http://localhost:8080/microservice-example/output/c0096728-3490-4f5f-96a8-0f20a5a1244c/file/index.html
+http://localhost:8080/buildvu-microservice/output/c0096728-3490-4f5f-96a8-0f20a5a1244c/file/index.html
 ```
 
 ## Hosted Script ##
@@ -158,7 +158,7 @@ require_once __DIR__ . "/vendor/autoload.php";
 
 use IDRsolutions\BuildVuPhpClient\Converter;
 
-$endpoint = "http://localhost:8080/microservice-example/";
+$endpoint = "http://localhost:8080/buildvu-microservice/";
 
 try {
     $conversion_results = Converter::convert(array(
@@ -190,7 +190,7 @@ In this case, the Apache server is deployed at localhost:80. To execute the scri
 
 The webpage will display the link to the preview:
 
-```http://localhost:8080/microservice-example/output/c0096728-3490-4f5f-96a8-0f20a5a1244c/file/index.html```
+```http://localhost:8080/buildvu-microservice/output/c0096728-3490-4f5f-96a8-0f20a5a1244c/file/index.html```
 
 The downloaded zip will be available in ```htdocs/conversion/output```.
 
