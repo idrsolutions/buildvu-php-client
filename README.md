@@ -4,6 +4,8 @@ Convert PDF to HTML5 or SVG with PHP, using the BuildVu PHP Client to interact w
 
 The BuildVu Microservice Example is an open source project that allows you to convert PDF to HTML5 or SVG by running [BuildVu](https://www.idrsolutions.com/buildvu/) as an online service.
 
+IDRsolutions offer a free trial service for running BuildVu with PHP, more infomation on this can be found [here](https://www.idrsolutions.com/buildvu/convert-pdf-in-php/).
+
 For tutorials on how to deploy BuildVu to an app server, visit the [documentation](https://support.idrsolutions.com/hc/en-us/sections/360000444652-Deploy-BuildVu-to-an-app-server).
 
 -----
