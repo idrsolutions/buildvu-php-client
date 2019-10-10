@@ -34,9 +34,9 @@ $endpoint = "http://localhost:8080/buildvu-microservice/";
 
 $conversion_results = Converter::convert(array(
     'endpoint' => $endpoint,
-    'file' => __DIR__ . 'path/to/file.pdf',
     'parameters' => array(
-        'input' => Converter::INPUT_UPLOAD
+        'input' => Converter::INPUT_UPLOAD,
+        'file' => __DIR__ . 'path/to/file.pdf'
     )
 ));
 
@@ -98,9 +98,9 @@ $endpoint = "http://localhost:8080/buildvu-microservice/";
 
 $conversion_results = Converter::convert(array(
     'endpoint' => $endpoint,
-    'file' => __DIR__ . 'input_files/file.pdf',
     'parameters' => array(
-        'input' => Converter::INPUT_UPLOAD
+        'input' => Converter::INPUT_UPLOAD,
+        'file' => __DIR__ . 'input_files/file.pdf'
     )
 ));
 
@@ -165,9 +165,9 @@ $endpoint = "http://localhost:8080/buildvu-microservice/";
 try {
     $conversion_results = Converter::convert(array(
         'endpoint' => $endpoint,
-        'file' => __DIR__ . '/../conversion/input_files/file.pdf',
         'parameters' => array(
-            'input' => Converter::INPUT_UPLOAD
+            'input' => Converter::INPUT_UPLOAD,
+            'file' => __DIR__ . '/../conversion/input_files/file.pdf'
         )
     ));
     

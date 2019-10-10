@@ -54,7 +54,7 @@ class Converter {
         } else {
             $params = $opt[self::KEY_PARAMETERS];
         }
-        if (array_key_exists(self::KEY_INPUT, $params) && $params[self::KEY_INPUT] === self::INPUT_UPLOAD && !array_key_exists(self::KEY_FILE_PATH, $opt)) {
+        if (array_key_exists(self::KEY_INPUT, $params) && $params[self::KEY_INPUT] === self::INPUT_UPLOAD && !array_key_exists(self::KEY_FILE_PATH, $params)) {
             self::exitWithError('Missing file.');
         }
         if (array_key_exists(self::KEY_INPUT, $params) && $params[self::KEY_INPUT] === self::INPUT_DOWNLOAD && !array_key_exists(self::KEY_CONVERSION_URL, $params)) {
@@ -67,8 +67,8 @@ class Converter {
         $parameters = $opt[self::KEY_PARAMETERS];
 
         if ($parameters[self::KEY_INPUT] === self::INPUT_UPLOAD) {
-            if(array_key_exists(self::KEY_FILE_PATH, $opt)) {
-                $filePath = $opt[self::KEY_FILE_PATH];
+            if(array_key_exists(self::KEY_FILE_PATH, $parameters)) {
+                $filePath = $parameters[self::KEY_FILE_PATH];
             }
             $multipart_Boundary = '--------------------------'.microtime(true);
             $header = 'Content-Type: multipart/form-data; boundary=' .$multipart_Boundary;
