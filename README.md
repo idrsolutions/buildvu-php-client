@@ -123,8 +123,8 @@ php convert.php
 }
 {
     "state": "processed",
-    "previewPath": "output\/c0096728-3490-4f5f-96a8-0f20a5a1244c\/file\/index.html",
-    "downloadPath": "output\/c0096728-3490-4f5f-96a8-0f20a5a1244c\/file.zip"
+    "previewUrl": "http://localhost:8080/buildvu-microservice/output/c0096728-3490-4f5f-96a8-0f20a5a1244c/file/index.html",
+    "downloadUrl": "http://localhost:8080/buildvu-microservice/output/c0096728-3490-4f5f-96a8-0f20a5a1244c/file.zip"
 }
 http://localhost:8080/buildvu-microservice/output/c0096728-3490-4f5f-96a8-0f20a5a1244c/file/index.html
 ```
