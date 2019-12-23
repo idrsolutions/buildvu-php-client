@@ -16,9 +16,11 @@ class Converter {
     const KEY_INPUT = 'input';
     const KEY_FILE_PATH = 'file';
     const KEY_CONVERSION_URL = 'url';
-    
+
     const INPUT_UPLOAD = 'upload';
     const INPUT_DOWNLOAD = 'download';
+    const KEY_USERNAME = 'username';
+    const KEY_PASSWORD = 'password';
 
     private static function progress($r) {
         fwrite(STDOUT, json_encode($r, JSON_PRETTY_PRINT) . "\r\n");
@@ -63,7 +65,7 @@ class Converter {
     }
 
     private static function createContext($opt) {
-        
+
         $parameters = $opt[self::KEY_PARAMETERS];
 
         if ($parameters[self::KEY_INPUT] === self::INPUT_UPLOAD) {
@@ -71,12 +73,19 @@ class Converter {
                 $filePath = $parameters[self::KEY_FILE_PATH];
             }
             $multipart_Boundary = '--------------------------'.microtime(true);
-            $header = 'Content-Type: multipart/form-data; boundary=' .$multipart_Boundary;
+            $contentType = 'Content-Type: multipart/form-data; boundary=' .$multipart_Boundary;
             $content = self::generateMultipartContent($parameters, $filePath, $multipart_Boundary);
         }
         else {
             $content = http_build_query($parameters);
-            $header = "Content-Type: application/x-www-form-urlencoded\r\nContent-Length: ".strlen($content);
+            $contentType = "Content-Type: application/x-www-form-urlencoded\r\nContent-Length: ".strlen($content);
+        }
+
+        if(array_key_exists(self::KEY_USERNAME, $parameters) && array_key_exists(self::KEY_PASSWORD, $parameters)) {
+            $authstring = $parameters[self::KEY_USERNAME] .':' . $parameters[self::KEY_PASSWORD];
+            $auth = base64_encode($authstring);
+            $authorization = "Authorization: Basic " . $auth;
+
         }
 
         $options = array(
@@ -84,22 +93,22 @@ class Converter {
                 'method' => 'POST',
                 'TIMEOUT' => self::TIMEOUT,
                 'ignore_errors' => TRUE,
-                'header' => $header,
+                'header' => array($contentType,$authorization),
                 'content' => $content
             )
         );
         return stream_context_create($options);
     }
-    
+
     private static function generateMultipartContent($parameters, $filePath, $multipartBoundary) {
-        
+
         $form_field = "file";
 
         $file = file_get_contents($filePath);
         if (!$file) {
             self::exitWithError("File not found.");
         }
-        
+
         $content = '--'.$multipartBoundary."\r\n".
             'Content-Disposition: form-data; name="' .$form_field. '"; filename="'.basename($filePath)."\"\r\n".
             "Content-Type: application/zip\r\n\r\n".$file."\r\n--".$multipartBoundary;
@@ -147,28 +156,28 @@ class Converter {
         fwrite(STDERR, $printStr);
         throw new \Exception($printStr, $errCode);
     }
-    
+
     /**
      * Use the server response to download a zip file of the converted output
-     * 
+     *
      * @param type $results The server response generated from the convert method
      * @param type $outputDir The directory where the output will be saved
      * @param type $filename (optional) A filename for the downloaded zip file
      */
     public static function downloadOutput($results, $outputDir, $filename = null) {
-        
+
         $downloadUrl = $results['downloadUrl'];
-        
+
         if ($filename == null) {
             $filename = pathinfo($downloadUrl)['basename'];
         }
-        
+
         self::download($downloadUrl, $outputDir, $filename);
     }
 
     /**
      * Start a conversion of a file for a BuildVu MicroService server
-     * 
+     *
      * @param array $opt An associative array of the conversion options desired
      * @return array The response from the server after the conversion completes
      */
@@ -183,7 +192,7 @@ class Converter {
         if ($http_response !== '200') { //Check http response code for if the request failed
             if ($result !== false) { //If a text response was given
                 $decoded = json_decode($result, true);//Decode the json
-                if(array_key_exists('error',$decoded)) {
+                if(is_array($decoded) && array_key_exists('error',$decoded)) {
                     self::exitWithError("http error code " . $http_response . ": " . $decoded['error'], $http_response ); //Exit with the error provided
                 } else {
                     self::exitWithError('Failed to upload.');
@@ -192,7 +201,7 @@ class Converter {
                 self::exitWithError('Failed to upload.');
             }
         }
-        
+
         if (array_key_exists('callbackUrl', $opt[self::KEY_PARAMETERS])) {
             return array('state'=>'queued');
         }
