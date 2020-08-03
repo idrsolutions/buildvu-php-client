@@ -1,5 +1,5 @@
 # THIS PACKAGE HAS BEEN DEPRECATED #
-Future development has been directed to the [idrsolutuions client](https://github.com/idrsolutions/idrsolutions-php-client), which can be used for the same purpose. This package will receive no more updates. 
+Future development has been directed to the [idrsolutions client](https://github.com/idrsolutions/idrsolutions-php-client), which can be used for the same purpose. This package will receive no more updates. 
 
 # BuildVu PHP Client #
 
